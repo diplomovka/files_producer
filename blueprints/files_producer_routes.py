@@ -13,7 +13,7 @@ files_producer_routes = Blueprint('files_producer_routes', __name__)
 
 @files_producer_routes.route('/upload', methods=['POST'])
 def upload_file():
-    # handling fiels source: https://roytuts.com/python-flask-rest-api-file-upload/
+    # handling file source: https://roytuts.com/python-flask-rest-api-file-upload/
     if 'file' not in request.files:
         res = jsonify({
             'message': 'There is no file in part of request.'
