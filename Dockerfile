@@ -8,4 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY . ./
 
-CMD [ "python", "./files_producer.py", "test.txt", "1024", "256", "64" ]
+EXPOSE 5000
+
+CMD ["python", "-m" , "flask", "run", "--host=0.0.0.0", "--port=5000"]

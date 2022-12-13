@@ -32,6 +32,7 @@ def upload_file():
     file_content_bytes = uploaded_file.read()
 
     producer.poll(0.0)
+    # TODO: require sizes in request
     chunks = list(fastcdc(file_content_bytes, min_size=64, avg_size=256,
         max_size=1024, fat=True, hf=sha256))
     total_chunks = len(chunks)
