@@ -1,0 +1,12 @@
+{
+    "namespace": "example.text.schema",
+	"name": "file",
+    "type": "record",
+    "fields": [
+		{"name": "file_name", "type": "string"},
+		{"name": "chunk", "type": "bytes"},
+		{"name": "chunk_hash", "type": "string"},
+		{"name": "chunk_serial_num", "type": "int"},
+		{"name": "end_of_file",  "type": "boolean"}
+	]
+}
