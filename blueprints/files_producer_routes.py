@@ -1,3 +1,4 @@
+import time
 import settings
 from flask import Blueprint
 from flask import request, jsonify
@@ -6,6 +7,8 @@ from uuid import uuid4
 from hashlib import sha256
 from producers.files_producer import set_up_producer, delivery_report
 from serialization_classes.file_data import FileData
+
+time.sleep(30)
 
 producer = set_up_producer()
 
