@@ -10,6 +10,10 @@ from serialization_classes.file_data import FileData
 
 time.sleep(30)
 
+MIN_SIZE = 64
+AVG_SIZE = 256
+MAX_SIZE = 1024
+
 producer = set_up_producer()
 
 files_producer_routes = Blueprint('files_producer_routes', __name__)
@@ -32,25 +36,47 @@ def upload_file():
         res.status_code = 400
         return res
 
-    file_content_bytes = uploaded_file.read()
+    try:
+        min_size = int(request.form.get('min_size')) if 'min_size' in request.form \
+            and int(request.form.get('min_size')) and int(request.form.get('min_size')) > MIN_SIZE else MIN_SIZE
+        avg_size = int(request.form.get('avg_size')) if 'avg_size' in request.form \
+            and int(request.form.get('avg_size')) and int(request.form.get('avg_size')) > AVG_SIZE else AVG_SIZE
+        max_size = int(request.form.get('max_size')) if 'max_size' in request.form \
+            and int(request.form.get('max_size')) and int(request.form.get('max_size')) > MAX_SIZE else MAX_SIZE
 
-    producer.poll(0.0)
-    # TODO: require sizes in request
-    chunks = list(fastcdc(file_content_bytes, min_size=64, avg_size=256,
-        max_size=1024, fat=True, hf=sha256))
-    total_chunks = len(chunks)
+        file_content_bytes = uploaded_file.read()
 
-    for i, chunk in enumerate(chunks):
-        end_of_file = i == (total_chunks - 1)
-        file_data = FileData(file_name=uploaded_file.filename, chunk=chunk.data, chunk_hash=chunk.hash,
-                            chunk_serial_num=i, end_of_file=end_of_file)
-        producer.produce(topic=settings.FILES_TOPIC, key=str(uuid4()), value=file_data,
-                        on_delivery=delivery_report)
+        producer.poll(0.0)
 
-    producer.flush()
+        chunks = list(fastcdc(file_content_bytes, min_size=min_size, 
+            avg_size=avg_size, max_size=max_size, fat=True, hf=sha256))
+        total_chunks = len(chunks)
 
-    res = jsonify({
-        'message': 'File was successfully uploaded.'
-    })
-    res.status_code = 200
-    return res
+        for i, chunk in enumerate(chunks):
+            end_of_file = i == (total_chunks - 1)
+            file_data = FileData(file_name=uploaded_file.filename, chunk=chunk.data, chunk_hash=chunk.hash,
+                                chunk_serial_num=i, end_of_file=end_of_file)
+            producer.produce(topic=settings.FILES_TOPIC, key=str(uuid4()), value=file_data,
+                            on_delivery=delivery_report)
+
+        producer.flush()
+
+        res = jsonify({
+            'message': 'File was successfully uploaded.'
+        })
+        res.status_code = 200
+        return res
+
+    except ValueError:
+        res = jsonify({
+            'message': 'min_size, avg_size or max_size isn\'t interger.'
+        })
+        res.status_code = 400
+        return res
+
+    except Exception as e:
+        print(e)
+        res = jsonify({
+            'message': 'Something went wrong.'
+        })
+        res.status_code = 500
