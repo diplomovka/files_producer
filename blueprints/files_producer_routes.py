@@ -48,8 +48,16 @@ def upload_file():
 
         producer.poll(0.0)
 
+        file = open('chunking_time_miliseconds.csv', 'a')
+        
+        start = time.perf_counter_ns()
         chunks = list(fastcdc(file_content_bytes, min_size=min_size, 
             avg_size=avg_size, max_size=max_size, fat=True, hf=sha256))
+        end = time.perf_counter_ns()
+
+        file.write(f'{uploaded_file.filename};{(end-start) / 1000000}\n')
+        file.close()
+
         total_chunks = len(chunks)
 
         for i, chunk in enumerate(chunks):
