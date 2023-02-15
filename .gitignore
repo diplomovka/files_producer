@@ -3,3 +3,4 @@ files_producer.py
 __pycache__/
 /venv
 chunking_time_miliseconds.csv
+/experiments_results/*

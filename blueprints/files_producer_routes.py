@@ -47,17 +47,15 @@ def upload_file():
         file_content_bytes = uploaded_file.read()
 
         producer.poll(0.0)
-
-        file = open('chunking_time_miliseconds.csv', 'a')
         
+        # perform chunking and time it takes
         start = time.perf_counter_ns()
         chunks = list(fastcdc(file_content_bytes, min_size=min_size, 
             avg_size=avg_size, max_size=max_size, fat=True, hf=sha256))
         end = time.perf_counter_ns()
 
-        file.write(f'{uploaded_file.filename};{(end-start) / 1000000}\n')
-        file.close()
-
+        total_collisions = 0
+        chunks_data_by_hashes = {}
         total_chunks = len(chunks)
 
         for i, chunk in enumerate(chunks):
@@ -67,7 +65,19 @@ def upload_file():
             producer.produce(topic=settings.FILES_TOPIC, key=str(uuid4()), value=file_data,
                             on_delivery=delivery_report)
 
+            # control collisions
+            if chunk.hash not in chunks_data_by_hashes:
+                chunks_data_by_hashes[chunk.hash] = chunk.data
+
+            elif chunk.data != chunks_data_by_hashes[chunk.hash]:
+                total_collisions += 1
+
         producer.flush()
+
+        # write chunking time to file and total number of collisions to file
+        with open('./experiments_results/chunking_time_miliseconds.csv', 'a') as file:
+            file.write(f'{uploaded_file.filename};{(end-start) / 1000000};{total_collisions}\n')
+
 
         res = jsonify({
             'message': 'File was successfully uploaded.'
