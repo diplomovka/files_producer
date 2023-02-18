@@ -78,7 +78,6 @@ def upload_file():
         with open('./experiments_results/chunking_time_miliseconds.csv', 'a') as file:
             file.write(f'{uploaded_file.filename};{(end-start) / 1000000};{total_collisions}\n')
 
-
         res = jsonify({
             'message': 'File was successfully uploaded.'
         })

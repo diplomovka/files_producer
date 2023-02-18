@@ -16,8 +16,8 @@ def delivery_report(err, msg):
         Triggered by poll() or flush(). """
     if err is not None:
         print(f'Message delivery failed: {err}')
-    else:
-        print(f'Message {msg.key()} delivered to {msg.topic()} [{msg.partition()}, {msg.offset()}]')
+    # else:
+    #     print(f'Message {msg.key()} delivered to {msg.topic()} [{msg.partition()}, {msg.offset()}]')
 
 def set_up_producer():
     schema_registry_conf = {'url': settings.SCHEMA_REGISTRY_URL}
