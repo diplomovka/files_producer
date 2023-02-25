@@ -1,3 +1,4 @@
+import os
 import time
 import settings
 from flask import Blueprint
@@ -15,6 +16,11 @@ def handle_not_valid_request(res, message):
     return res
 
 
+def create_directory(directory_name):
+    if not os.path.exists(directory_name) or not os.path.isdir(directory_name):
+        os.mkdir(directory_name)
+
+
 time.sleep(30)
 
 MIN_SIZE = 64
@@ -28,6 +34,8 @@ HASH_FUNCTIONS = {
 }
 
 producer = set_up_producer()
+
+create_directory(settings.EXPERIMENTS_DATA_DIR)
 
 files_producer_routes = Blueprint('files_producer_routes', __name__)
 
@@ -55,6 +63,7 @@ def upload_file():
         max_size = int(request.form.get('max_size')) if 'max_size' in request.form \
             and int(request.form.get('max_size')) and int(request.form.get('max_size')) > MAX_SIZE else MAX_SIZE
         
+        experiment_name = request.form.get('experiment_name')
         hash_function = HASH_FUNCTIONS[request.form.get('hash_function')]
 
         file_content_bytes = uploaded_file.read()
@@ -67,29 +76,23 @@ def upload_file():
             avg_size=avg_size, max_size=max_size, fat=True, hf=hash_function))
         end = time.perf_counter_ns()
 
-        total_collisions = 0
-        chunks_data_by_hashes = {}
         total_chunks = len(chunks)
 
         for i, chunk in enumerate(chunks):
             end_of_file = i == (total_chunks - 1)
             file_data = FileData(file_name=uploaded_file.filename, chunk=chunk.data, chunk_hash=chunk.hash,
-                                chunk_serial_num=i, end_of_file=end_of_file)
+                                chunk_serial_num=i, end_of_file=end_of_file, experiment_name=experiment_name)
             producer.produce(topic=settings.FILES_TOPIC, key=str(uuid4()), value=file_data,
                             on_delivery=delivery_report)
 
-            # control collisions
-            if chunk.hash not in chunks_data_by_hashes:
-                chunks_data_by_hashes[chunk.hash] = chunk.data
-
-            elif chunk.data != chunks_data_by_hashes[chunk.hash]:
-                total_collisions += 1
-
         producer.flush()
 
+        experiment_dir = f'./{settings.EXPERIMENTS_DATA_DIR}/{experiment_name}'
+        create_directory(experiment_dir)
+
         # write chunking time to file and total number of collisions to file
-        with open('./experiments_results/chunking_time_miliseconds.csv', 'a') as file:
-            file.write(f'{uploaded_file.filename};{(end-start) / 1000000};{total_collisions}\n')
+        with open(f'{experiment_dir}/{experiment_name}_chunking_milisec.csv', 'a') as file:
+            file.write(f'{uploaded_file.filename};{(end-start) / 1000000}\n')
 
         res = jsonify({
             'message': 'File was successfully uploaded.'

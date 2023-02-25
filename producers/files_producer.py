@@ -9,7 +9,7 @@ import settings
 def file_data_to_dict(file_data, ctx):
     return dict(file_name=file_data.file_name, chunk=file_data.chunk,
                 chunk_hash=file_data.chunk_hash, chunk_serial_num=file_data.chunk_serial_num,
-                end_of_file=file_data.end_of_file)
+                end_of_file=file_data.end_of_file, experiment_name=file_data.experiment_name)
 
 def delivery_report(err, msg):
     """ Called once for each message produced to indicate delivery result.

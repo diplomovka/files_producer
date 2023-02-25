@@ -7,6 +7,7 @@
 		{"name": "chunk", "type": "bytes"},
 		{"name": "chunk_hash", "type": "string"},
 		{"name": "chunk_serial_num", "type": "int"},
-		{"name": "end_of_file",  "type": "boolean"}
+		{"name": "end_of_file",  "type": "boolean"},
+		{"name": "experiment_name", "type": "string"}
 	]
 }
