@@ -21,4 +21,4 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: ykbhlvck/files_consumer:flexible-window-size-experiment
+        tags: ykbhlvck/files_producer:flexible-window-size-experiment
