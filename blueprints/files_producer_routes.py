@@ -5,7 +5,7 @@ from flask import Blueprint
 from flask import request, jsonify
 from fastcdc import fastcdc
 from uuid import uuid4
-from hashlib import sha256
+from hashlib import sha256, md5, sha1
 from producers.files_producer import set_up_producer, delivery_report
 from serialization_classes.file_data import FileData
 
@@ -29,8 +29,8 @@ MAX_SIZE = 1024
 
 HASH_FUNCTIONS = {
     'sha256': sha256,
-    'md5': None,
-    'sha1': None
+    'md5': md5,
+    'sha1': sha1
 }
 
 producer = set_up_producer()
