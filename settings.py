@@ -1,6 +1,6 @@
 import os
 
-APP_PORT = int(os.getenv('APP_PORT') or 5001)
+APP_PORT = int(os.getenv('APP_PORT') or 5001) # keep it on 5001, otherwise has to change in Dockerfile
 
 FILES_TOPIC = str(os.getenv('FILES_TOPIC') or 'FILES_TOPIC')
 FILES_SCHEMA_PATH = str(os.getenv('FILES_SCHEMA_PATH') or './avro_files/files.avsc')
