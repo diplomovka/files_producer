@@ -21,7 +21,7 @@ def create_directory(directory_name):
         os.mkdir(directory_name)
 
 
-time.sleep(30)
+time.sleep(settings.WAIT_BEFORE_START)
 
 MIN_SIZE = 64
 AVG_SIZE = 256
