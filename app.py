@@ -1,7 +1,8 @@
+import settings
 from flask import Flask
 from blueprints.files_producer_routes import files_producer_routes
 
-app = Flask(__name__)
+app = Flask(__name__, port=settings.APP_PORT)
 app.register_blueprint(files_producer_routes, url_prefix='/file')
 
 @app.route('/')
