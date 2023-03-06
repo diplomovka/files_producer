@@ -4,3 +4,4 @@ __pycache__/
 /venv
 chunking_time_miliseconds.csv
 /experiments_data/*
+/experiments_input_data/*
