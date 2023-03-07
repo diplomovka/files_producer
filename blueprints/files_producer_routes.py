@@ -57,9 +57,11 @@ def read_and_process_files(files_names, dir_path, experiment_name,
         if counter % 1000 == 0:
             print(f'{counter} files were send.')
 
-        file_relative_path = f'{dir_path}{file_name}'
+        file_relative_path = f'{dir_path}/{file_name}'
         file = open(file_relative_path, 'rb')
         file_content_bytes = file.read()
+
+        counter += 1
 
         process_and_publish_file(producer, file_name, experiment_name, file_content_bytes,
                                 min_size, avg_size, max_size, hash_function)
@@ -163,11 +165,11 @@ def load_data_from_fs():
         hash_function = HASH_FUNCTIONS[request.form.get('hash_function')]
 
         files_names = os.listdir(dir_path)
-        read_and_process_files(files_names, dir_path, experiment_name, min_size,
-                               avg_size, max_size, hash_function)
+
+        read_and_process_files(files_names, dir_path, experiment_name, min_size, avg_size, max_size, hash_function)
 
         res = jsonify({
-            'message': 'File was successfully uploaded.'
+            'message': 'Uploading process finished.'
         })
         res.status_code = 200
 
